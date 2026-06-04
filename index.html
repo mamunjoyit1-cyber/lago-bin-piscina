@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lago Bin – Il Bar della Piscina</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', Palatino, serif; background: #fffcf9; color: #2d1e18; }
+
+  /* New Warm Terracotta & Deep Orange-Brown Gradient */
+  .header { background: linear-gradient(160deg, #2b1105 0%, #6e2a0f 60%, #2b1105 100%); padding: 28px 20px 22px; text-align: center; }
+  .header .subtitle { color: #e3964e; font-size: 11px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.9; }
+  .header h1 { color: #fae8d7; font-size: clamp(26px, 6vw, 38px); font-weight: normal; letter-spacing: 3px; }
+  .header .divider { width: 60px; height: 1px; background: #e3964e; margin: 10px auto 16px; opacity: 0.6; }
+  
+  .lang-bar { background: #3d170a; padding: 10px; border-bottom: 2px solid #e3964e; border-radius: 0 0 10px 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .lang-btn { background: rgba(255,255,255,0.08); color: #fae8d7; border: 1px solid rgba(227,150,78,0.35); border-radius: 20px; padding: 7px 15px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .lang-btn.active { background: #e3964e; color: #fff; border-color: #e3964e; font-weight: bold; }
+
+  .translate-wrap { position: relative; display: inline-block; }
+  .translate-btn { background: rgba(255,255,255,0.12); color: #fae8d7; border: 1px dashed rgba(227,150,78,0.6); border-radius: 20px; padding: 7px 15px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .translate-btn:hover { background: rgba(227,150,78,0.2); }
+  
+  .lang-dropdown { display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #f0d3b7; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 999; min-width: 200px; max-height: 320px; overflow-y: auto; }
+  .lang-dropdown.open { display: block; }
+  .lang-dropdown-item { padding: 10px 16px; font-size: 14px; cursor: pointer; color: #2d1e18; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #fbf5ee; transition: background 0.15s; font-family: inherit; }
+  .lang-dropdown-item:hover { background: #fdf2e9; }
+  .lang-dropdown-section { padding: 8px 16px 4px; font-size: 11px; font-weight: bold; color: #b06543; text-transform: uppercase; letter-spacing: 1.5px; background: #faf0e6; border-bottom: 1px solid #f0d3b7; }
+
+  .quick-cards { display: flex; gap: 10px; padding: 14px 16px; background: #fcf1e7; border-bottom: 1px solid #edd3be; justify-content: center; flex-wrap: wrap; }
+  .quick-card { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e3964e; border-radius: 10px; padding: 10px 18px; cursor: pointer; text-decoration: none; color: #2d1e18; font-family: inherit; font-size: 14px; font-weight: bold; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .quick-card:hover { background: #6e2a0f; color: #fff; border-color: #6e2a0f; transform: translateY(-1px); }
+  .quick-card .card-label { font-size: 11px; color: #9c5c3d; font-weight: normal; font-style: italic; }
+  .quick-card:hover .card-label { color: #e3964e; }
+
+  .translating-bar { display: none; background: #fff3cd; padding: 10px 20px; text-align: center; font-size: 13px; color: #856404; border-bottom: 1px solid #ffeeba; }
+  .translating-bar.show { display: block; }
+
+  .tabs-wrap { background: #fff; border-bottom: 2px solid #edd3be; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tabs { display: flex; justify-content: flex-start; md-justify-content: center; gap: 4px; padding: 6px 10px; min-width: max-content; }
+  .tab-btn { background: none; border: none; border-bottom: 3px solid transparent; color: #70564a; padding: 12px 14px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.2s; }
+  .tab-btn.active { border-bottom-color: #6e2a0f; color: #6e2a0f; font-weight: bold; }
+ 
+  .content { padding: 16px 16px 40px; max-width: 700px; margin: 0 auto; }
+  .cat-title { text-align: center; color: #6e2a0f; font-weight: normal; font-size: 20px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 1px solid #edd3be; padding-bottom: 12px; }
+
+  .item { background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.04); border: 1px solid #ebd9cb; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .item-left { flex: 1; }
+  .item-name { font-weight: bold; font-size: 15px; color: #2d1e18; line-height: 1.4; }
+  .item-desc { font-size: 12.5px; color: #70564a; font-style: italic; line-height: 1.5; margin-top: 4px; }
+  .item-price { font-size: 15px; font-weight: bold; color: #6e2a0f; white-space: nowrap; flex-shrink: 0; }
+
+  .banner-box { background: linear-gradient(135deg, #fff5ec, #fdf0e2); border: 1px solid #e3964e; border-radius: 12px; padding: 18px; margin-bottom: 16px; text-align: center; }
+  .banner-box h3 { color: #6e2a0f; font-size: 16px; margin-bottom: 6px; }
+  .banner-box p { color: #70564a; font-size: 13px; font-style: italic; }
+
+  /* Pool Prices Table Styling */
+  .price-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #ebd9cb; }
+  .price-table th, .price-table td { padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #ebd9cb; }
+  .price-table th { background: #6e2a0f; color: #fff; font-weight: normal; }
+  .price-table td { color: #2d1e18; }
+  .price-table tr:last-child td { border-bottom: none; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .footer { background: #2b1105; color: #fae8d7; text-align: center; padding: 22px; font-size: 12px; border-top: 3px solid #e3964e; }
+  .footer .note { color: #b08d7b; font-size: 11px; font-style: italic; margin-top: 6px; }
+
+  #google_translate_element { display: none; }
+  .goog-te-banner-frame { display: none !important; }
+  body { top: 0 !important; }
+  .skiptranslate { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="google_translate_element"></div>
+
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:14px;text-align:center;">
+    <img src="images.jpeg" style="width:75px;height:75px;object-fit:contain;background:#fff;padding:5px;border-radius:18px;box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+    <div>
+      <div class="subtitle">✦ BAR DELLA PISCINA ✦</div>
+      <h1>LAGO BIN</h1>
+      <div class="divider" style="margin:8px auto 0 auto;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('it', this)">🇮🇹 Italiano</button>
+  <button class="lang-btn" onclick="setLang('fr', this)">🇫🇷 Français</button>
+  <button class="lang-btn" onclick="setLang('en', this)">🇬🇧 English</button>
+  <div class="translate-wrap">
+    <button class="translate-btn" onclick="toggleDropdown()" id="translateBtn">🌐 More Languages ▾</button>
+    <div class="lang-dropdown" id="langDropdown">
+      <div class="lang-dropdown-section">🇪🇺 Europa</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('de')">🇩🇪 Deutsch – German</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('es')">🇪🇸 Español – Spanish</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('pt')">🇵🇹 Português – Portuguese</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('ru')">🇷🇺 Русский – Russian</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('nl')">🇳🇱 Nederlands – Dutch</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('pl')">🇵🇱 Polski – Polish</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('sv')">🇸🇪 Svenska – Swedish</div>
+      <div class="lang-dropdown-item" onclick="googleTranslate('bn')">🇧🇩 বাংলা – Bengali</div>
+    </div>
+  </div>
+</div>
+
+<div class="quick-cards">
+  <a class="quick-card" href="#" onclick="setTab('piscina', this); return false;">
+    <div class="card-icon">🏊‍♂️</div>
+    <div class="card-text">
+      <span data-it="Prezzi Piscina" data-fr="Prix Piscine" data-en="Pool Prices">Prezzi Piscina</span>
+      <span class="card-label" data-it="Ingresso e Orari" data-fr="Entrée et Horaires" data-en="Entry & Info">Ingresso e Orari</span>
+    </div>
+  </a>
+</div>
+
+<div class="translating-bar" id="translatingBar">🌐 Translating menu... please wait a moment</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('tavola_calda', this)">🍝 <span data-it="Piatti Caldi" data-fr="Plats Chauds" data-en="Hot Dishes">Piatti Caldi</span></button>
+    <button class="tab-btn" onclick="setTab('bruschette_toast', this)">🥪 <span data-it="Snack & Toast" data-fr="Snacks & Toasts" data-en="Snacks & Toasts">Snack & Toast</span></button>
+    <button class="tab-btn" onclick="setTab('piatti_freddi', this)">🥗 <span data-it="Piatti Freddi" data-fr="Plats Froids" data-en="Cold Dishes">Piatti Freddi</span></button>
+    <button class="tab-btn" onclick="setTab('bar_snack', this)">🍿 <span data-it="Bar Snacks" data-fr="Snacks Bar" data-en="Bar Snacks">Bar Snacks</span></button>
+    <button class="tab-btn" onclick="setTab('cafeteria', this)">☕ <span data-it="Caffetteria" data-fr="Cafétéria" data-en="Coffee Bar">Caffetteria</span></button>
+    <button class="tab-btn" onclick="setTab('bevande', this)">🥤 <span data-it="Bibite" data-fr="Boissons" data-en="Drinks">Bibite</span></button>
+    <button class="tab-btn" onclick="setTab('cocktails', this)">🍹 <span data-it="Cocktails" data-fr="Cocktails" data-en="Cocktails">Cocktails</span></button>
+    <button class="tab-btn" onclick="setTab('piscina', this)">🏊‍♂️ <span data-it="Piscina" data-fr="Piscine" data-en="Pool info">Piscina</span></button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- PIATTI CALDI -->
+  <div class="section active" id="sec-tavola_calda">
+    <h2 class="cat-title">🍝 <span data-it="Piatti Caldi" data-fr="Plats Chauds" data-en="Hot Dishes">Piatti Caldi</span></h2>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Ravioli della Nonna" data-fr="Raviolis de la Grand-Mère" data-en="Grandma's Ravioli">Ravioli della Nonna</div><div class="item-desc" data-it="Al Pomodoro o al Burro e Salvia" data-fr="À la tomate ou beurre et sauge" data-en="With tomato sauce or butter & sage">Al Pomodoro o al Burro e Salvia</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Tagliatelle della Casa" data-fr="Tagliatelles de la Maison" data-en="Homemade Tagliatelle">Tagliatelle della Casa</div><div class="item-desc" data-it="Al Pomodoro o al Pesto" data-fr="À la tomate ou au pesto" data-en="With tomato sauce or pesto">Al Pomodoro o al Pesto</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Tagliatelle ai Crostacei e Frutti di Mare" data-fr="Tagliatelles aux Crustacés et Fruits de Mer" data-en="Tagliatelle with Seafood & Shellfish">Tagliatelle ai Crostacei e Frutti di Mare</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Trofiette Primavera" data-fr="Trofiette Printanières" data-en="Spring Trofiette">Trofiette Primavera</div><div class="item-desc" data-it="Pomodoro Fresco, Verdure, Rucola e Pesto" data-fr="Tomate fraîche, légumes, roquette et pesto" data-en="Fresh tomato, vegetables, rocket and pesto">Pomodoro Fresco, Verdure, Rucola e Pesto</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Trofie con Gamberetti" data-fr="Trofie aux Crevettes" data-en="Trofie with Prawns">Trofie con Gamberetti</div><div class="item-desc" data-it="Con primizie dell'orto" data-fr="Avec légumes du jardin" data-en="With garden vegetables">Con primizie dell'orto</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Grigliata Mista di Carne" data-fr="Grillade Mixte de Viande" data-en="Mixed Grilled Meat">Grigliata Mista di Carne</div></div><div class="item-price">€20,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Costine d'Agnello alla Griglia" data-fr="Côtes d'Agneau Grillées" data-en="Grilled Lamb Ribs">Costine d'Agnello alla Griglia</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Roast Beef all'Inglese" data-fr="Rosbif à l'Anglaise" data-en="English Roast Beef">Roast Beef all'Inglese</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Gamberoni alla Griglia" data-fr="Gambas Grillées" data-en="Grilled King Prawns">Gamberoni alla Griglia</div></div><div class="item-price">€18,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Grigliata Mista di Pesce" data-fr="Grillade Mixte de Poisson" data-en="Mixed Fish Grill">Grigliata Mista di Pesce</div></div><div class="item-price">€25,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Verdure Miste alla Griglia" data-fr="Légumes Mixtes Grillés" data-en="Mixed Grilled Vegetables">Verdure Miste alla Griglia</div></div><div class="item-price">€10,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Hamburger e Patatine Fritte" data-fr="Hamburger et Frites" data-en="Hamburger & French Fries">Hamburger e Patatine Fritte</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Patatine Fritte" data-fr="Frites" data-en="French Fries">Patatine Fritte</div></div><div class="item-price">€5,00</div></div>
+  </div>
+
+  <!-- SNACKS & TOASTS -->
+  <div class="section" id="sec-bruschette_toast">
+    <h2 class="cat-title">🥪 <span data-it="Le Bruschette & Maxi Toast" data-fr="Bruschettas & Maxi Toasts" data-en="Bruschetta & Maxi Toast">Le Bruschette & Maxi Toast</span></h2>
+    
+    <div style="font-weight: bold; margin: 10px 0; color: #6e2a0f;">BRUSCHETTE</div>
+    <div class="item"><div class="item-left"><div class="item-name">Normale</div><div class="item-desc" data-it="Pomodoro, mozzarella, olive" data-fr="Tomate, mozzarella, olives" data-en="Tomato, mozzarella, olives">Pomodoro, mozzarella, olive</div></div><div class="item-price">€8,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Delicata</div><div class="item-desc" data-it="Pomodoro, mozzarella, rucola, prosciutto crudo e grana" data-fr="Tomate, mozzarella, roquette, jambon cru et grana" data-en="Tomato, mozzarella, rocket, cured ham and grana cheese">Pomodoro, mozzarella, rucola, prosciutto crudo e grana</div></div><div class="item-price">€10,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Montagna</div><div class="item-desc" data-it="Pomodoro, mozzarella, funghi" data-fr="Tomate, mozzarella, champignons" data-en="Tomato, mozzarella, mushrooms">Pomodoro, mozzarella, funghi</div></div><div class="item-price">€9,00</div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">MAXI TOAST</div>
+    <div class="item"><div class="item-left"><div class="item-name">Normale</div><div class="item-desc" data-it="Prosciutto e formaggio" data-fr="Jambon et fromage" data-en="Ham and cheese">Prosciutto e formaggio</div></div><div class="item-price">€6,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Romano</div><div class="item-desc" data-it="Arrosto, insalata, pomodoro" data-fr="Rôti, salade, tomate" data-en="Roast meat, salad, tomato">Arrosto, insalata, pomodoro</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Poldo</div><div class="item-desc" data-it="Prosciutto, formaggio, würstel" data-fr="Jambon, fromage, würstel" data-en="Ham, cheese, sausage">Prosciutto, formaggio, würstel</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Estate</div><div class="item-desc" data-it="Prosciutto, formaggio, pomodoro e mozzarella" data-fr="Jambon, fromage, tomate et mozzarella" data-en="Ham, cheese, tomato and mozzarella">Prosciutto, formaggio, pomodoro e mozzarella</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Bosco</div><div class="item-desc" data-it="Prosciutto, formaggio e funghi" data-fr="Jambon, fromage et champignons" data-en="Ham, cheese and mushrooms">Prosciutto, formaggio e funghi</div></div><div class="item-price">€7,00</div></div>
+    
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">SANDWICH</div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Pomodoro e Mozzarella" data-fr="Tomate et Mozzarella" data-en="Tomato and Mozzarella">Pomodoro e Mozzarella</div></div><div class="item-price">€6,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Pomodoro, Mozzarella e Cotto" data-fr="Tomate, Mozzarella et Jambon Cuit" data-en="Tomato, Mozzarella and Cooked Ham">Pomodoro, Mozzarella e Prosciutto Cotto</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Salumi Vari" data-fr="Charcuteries Variées" data-en="Mixed Cold Cuts">Salumi Vari</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Speck & Brie</div></div><div class="item-price">€7,00</div></div>
+  </div>
+
+  <!-- PIATTI FREDDI -->
+  <div class="section" id="sec-piatti_freddi">
+    <h2 class="cat-title">🥗 <span data-it="I Piatti Freddi" data-fr="Plats Froids" data-en="Cold Dishes">I Piatti Freddi</span></h2>
+    <div class="item"><div class="item-left"><div class="item-name">Caprese</div><div class="item-desc" data-it="Pomodoro, mozzarella, basilico e olive" data-fr="Tomate, mozzarella, basilic et olives" data-en="Tomato, mozzarella, basil and olives">Pomodoro, mozzarella, basilico e olive</div></div><div class="item-price">€9,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Prosciutto Crudo di Parma e Melone" data-fr="Jambon Cru de Parme et Melon" data-en="Parma Ham and Melon">Prosciutto Crudo di Parma e Melone</div></div><div class="item-price">€13,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Bresaola della Casa" data-fr="Bresaola" data-en="Bresaola Salad">Bresaola su letto di Rucola</div><div class="item-desc" data-it="Con scaglie di Grana" data-fr="Avec copeaux de Grana" data-en="With Grana cheese shavings">Con scaglie di Grana</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Insalatona" data-fr="Grande Salade" data-en="Big Mixed Salad">Insalatona</div><div class="item-desc" data-it="Insalata, verdure miste e tonno" data-fr="Salade, légumes mixtes et thon" data-en="Salad, mixed vegetables and tuna">Insalata, verdure miste e tonno</div></div><div class="item-price">€12,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Condiglione</div><div class="item-desc" data-it="Pomodoro, basilico, olive, cetriolo, peperoni, cipolla, tonno" data-fr="Tomate, basilic, olives, concombre, poivrons, oignon, thon" data-en="Tomato, basil, olives, cucumber, peppers, onion, tuna">Pomodoro, basilico, olive, cetriolo, peperoni, cipolla, tonno</div></div><div class="item-price">€12,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Insalata Norvegese" data-fr="Salade Norvégienne" data-en="Norwegian Salad">Insalata Norvegese</div><div class="item-desc" data-it="Insalata, salmone affumicato, crostini" data-fr="Salade, saumon fumé, croûtons" data-en="Salad, smoked salmon, croutons">Insalata, salmone affumicato, crostini</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Insalata del Pastore" data-fr="Salade du Berger" data-en="Shepherd's Salad">Insalata del Pastore</div><div class="item-desc" data-it="Insalata, formaggio caprino caldo, crostini" data-fr="Salade, fromage de chèvre chaud, croûtons" data-en="Salad, warm goat cheese, croutons">Insalata, formaggio caprino caldo, crostini</div></div><div class="item-price">€12,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Caesar Salad</div><div class="item-desc" data-it="Insalata, pollo, crostini, salsa Worcester" data-fr="Salade, poulet, croûtons, sauce Worcester" data-en="Salad, chicken, croutons, Worcester sauce">Insalata, pollo, crostini, Worcester sauce</div></div><div class="item-price">€15,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Poke Bowl Salmon</div><div class="item-desc" data-it="Riso, tartare di salmone, edamame, avocado, mango, sesamo" data-fr="Riz, tartare de saumon, edamame, avocat, mangue, sésame" data-en="Rice, salmon tartare, edamame, avocado, mango, sesame">Riso, tartare di salmone, edamame, avocado, mango, sesamo</div></div><div class="item-price">€16,00</div></div>
+  </div>
+
+  <!-- BAR SNACKS -->
+  <div class="section" id="sec-bar_snack">
+    <h2 class="cat-title">🍿 <span data-it="Snacks & Dolci Veloci" data-fr="Snacks & Desserts Rapides" data-en="Snacks & Fast Desserts">Snacks & Dolci Veloci</span></h2>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Torta Verde" data-fr="Tarte Verte" data-en="Traditional Green Vegetable Tart">Torta Verde</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Bicchiere Frutta Fresca" data-fr="Verre de Fruits Frais" data-en="Fresh Fruit Cup">Bicchiere Frutta Fresca</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Bicchiere Anguria & Melone" data-fr="Verre Pastèque & Melon" data-en="Watermelon & Melon Cup">Bicchiere Anguria & Melone</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Bicchiere Anguria" data-fr="Verre de Pastèque" data-en="Watermelon Cup">Bicchiere Anguria</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Patatine Confezionate / Pizza / Focaccia" data-fr="Chips / Pizza / Focaccia" data-en="Packaged Chips / Pizza slice / Focaccia">Patatine Confezionate / Pizza / Focaccia</div></div><div class="item-price">€1,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Brioches</div></div><div class="item-price">€1,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Crostata della Casa" data-fr="Tarte Maison" data-en="Homemade Jam Tart">Crostata</div></div><div class="item-price">€2,50</div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;" data-it="I Dessert della Casa" data-fr="Desserts Maison" data-en="Homemade Desserts">DESSERT ARTIGIANALI</div>
+    <div class="item"><div class="item-left"><div class="item-name">Tiramisù / Panna Cotta / Crème Caramel</div></div><div class="item-price">€6,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Ananas o Macedonia con Gelato" data-fr="Ananas ou Macédoine avec Glace" data-en="Pineapple or Fruit Salad with Ice Cream">Ananas e Macedonia di Frutta con Gelato</div></div><div class="item-price">€6,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Assortimento Misto Dolci" data-fr="Assortiment de Desserts" data-en="Mixed Dessert Platter">Assortimento Misto</div></div><div class="item-price">€8,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Gelati Artigianali (al Cono/Coppa)" data-fr="Glaces Artisanales" data-en="Artisan Ice Cream">Gelati Artigianali</div></div><div class="item-price">€6,00</div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">SMOOTHIES (100% Frutta & Verdura) - €5,00</div>
+    <div class="item"><div class="item-left"><div class="item-name">Esotico</div><div class="item-desc">Banana, Ananas, Cocco</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Rilassante" data-fr="Relax" data-en="Relaxing">Rilassante</div><div class="item-desc">Pesca, Fragola, Melone</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Solare</div><div class="item-desc">Banana, Mango, Ananas, Papaya</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Avventuroso</div><div class="item-desc">Fragola, Mora, Lampone</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Romantico" data-fr="Romantique" data-en="Romantic">Romantico</div><div class="item-desc">Banana, Fragola, Pesca</div></div></div>
+  </div>
+
+  <!-- CAFFETTERIA -->
+  <div class="section" id="sec-cafeteria">
+    <h2 class="cat-title">☕ <span data-it="Caffetteria" data-fr="Cafétéria" data-en="Coffee Bar">Caffetteria</span></h2>
+    <div class="item"><div class="item-left"><div class="item-name">Caffè Espresso</div></div><div class="item-price">€1,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Caffè d'Orzo</div></div><div class="item-price">€2,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Ginseng (Piccolo)</div></div><div class="item-price">€2,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Ginseng (Grande)</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Cappuccino</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Latte Macchiato</div></div><div class="item-price">€2,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="The Caldo / Infusi" data-fr="Thé Chaud" data-en="Hot Tea">The Caldo</div></div><div class="item-price">€2,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Cioccolata Calda" data-fr="Chocolat Chaud" data-en="Hot Chocolate">Cioccolata</div></div><div class="item-price">€2,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Caffè Freddo" data-fr="Café Glacé" data-en="Iced Coffee">Caffè Freddo</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Caffè Freddo Alcolico" data-fr="Café Glacé Alcoolisé" data-en="Iced Coffee with Alcohol">Caffè Freddo Alcolico</div></div><div class="item-price">€4,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Irish Coffee</div></div><div class="item-price">€6,00</div></div>
+  </div>
+
+  <!-- BEVANDE -->
+  <div class="section" id="sec-bevande">
+    <h2 class="cat-title">🥤 <span data-it="Bibite & Birre" data-fr="Boissons & Bières" data-en="Soft Drinks & Beers">Bibite & Birre</span></h2>
+    <div class="item"><div class="item-left"><div class="item-name">Acqua 50 cl</div></div><div class="item-price">€1,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Acqua 1 Lt</div></div><div class="item-price">€2,50</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Coca Cola / Coca Zero / Fanta / Sprite / Schweppes</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Estathé (Limone / Pesca)</div></div><div class="item-price">€4,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Crodino / Sanbitter</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Red Bull</div></div><div class="item-price">€5,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Succhi di Frutta" data-fr="Jus de Fruits" data-en="Fruit Juices">Succhi di Frutta</div><div class="item-desc">Pesca, ananas, arancia, albicocca, ACE, pera</div></div><div class="item-price">€3,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Birra in Bottiglia 33 cl</div></div><div class="item-price">€4,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Birra 0,5 L</div></div><div class="item-price">€7,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Panaché / Monaco</div></div><div class="item-price">€5,00</div></div>
+  </div>
+
+  <!-- COCKTAILS -->
+  <div class="section" id="sec-cocktails">
+    <h2 class="cat-title">🍹 <span data-it="Cocktails & Aperitivi" data-fr="Cocktails & Apéritifs" data-en="Cocktails & Aperitifs">Cocktails & Aperitivi</span></h2>
+    
+    <div style="font-weight: bold; margin: 10px 0; color: #6e2a0f;">ANALCOLICI - €6,00</div>
+    <div class="item"><div class="item-left"><div class="item-name" data-it="Analcolico alla Frutta" data-fr="Cocktail Sans Alcool" data-en="Non-Alcoholic Fruit Cocktail">Analcolico alla Frutta</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Virgin Mojito / Virgin Piña Colada</div></div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">ALCOLICI & SPRITZ - €6,00</div>
+    <div class="item"><div class="item-left"><div class="item-name">Aperol Spritz / Campari Spritz</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Hugo Spritz / Hugjito / Limoncello Spritz</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Negroni / Negroni Sbagliato / Americano</div></div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">SPECIAL COCKTAILS - €8,00</div>
+    <div class="item"><div class="item-left"><div class="item-name">Mojito / Mojito alla Fragola</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Caipirinha / Caipiroska / Caipiroska alla Fragola</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Cuba Libre / Whisky & Coca / Rhum & Coca</div></div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Margarita / Piña Colada / Gin Tonic / Gin Lemon / Long Island</div></div></div>
+
+    <div style="font-weight: bold; margin: 20px 0 10px; color: #6e2a0f;">ALTRO</div>
+    <div class="item"><div class="item-left"><div class="item-name">Martini Bianco o Rosso / Digestivi / Distillati</div></div><div class="item-price">€5,00</div></div>
+    <div class="item"><div class="item-left"><div class="item-name">Shot Alcolici</div></div><div class="item-price">€4,00</div></div>
+  </div>
+
+  <!-- POOL PRICES -->
+  <div class="section" id="sec-piscina">
+    <h2 class="cat-title">🏊‍♂️ <span data-it="Prezzi della Piscina" data-fr="Tarifs Piscine" data-en="Swimming Pool Prices">Prezzi della Piscina</span></h2>
+    
+    <div class="banner-box">
+      <h3 data-it="Informazioni Importanti" data-fr="Informations Importantes" data-en="Important Info">Servizio Piscina</h3>
+      <p data-it="Il servizio piscina è compreso esclusivamente per i clienti dell'Hotel. Per esterni e ristorante, la piscina è a pagamento. Prego passare prima dalla Reception."
+         data-fr="Le service piscine est inclus exclusivement für Hotelgäste. Pour le restaurant et les externes, la piscine est payante."
+         data-en="Pool service is included exclusively for Hotel guests. For restaurant and external guests, pool access is paid. Please visit the Reception first.">
+         Il servizio piscina è compreso esclusivamente per i clienti dell'Hotel. Per esterni e ristorante, la piscina è a pagamento. Prego passare prima dalla Reception.
+      </p>
+    </div>
+
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th data-it="Biglietto Ingresso" data-fr="Type d'entrée" data-en="Entry Type">Ingresso</th>
+          <th data-it="Adulti" data-fr="Adultes" data-en="Adults">Adulti</th>
+          <th data-it="Bambini (4-10 anni)" data-fr="Enfants (4-10 ans)" data-en="Children (4-10 y.o.)">Bambini (4-10 anni)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-it="Giornata Intera (In Settimana)" data-fr="Journée Entière (Semaine)" data-en="Full Day (Weekdays)">Giornata Intera (Feriale)</td>
+          <td>10 €</td>
+          <td>7 €</td>
+        </tr>
+        <tr>
+          <td data-it="Giornata Intera (Sabato - Domenica)" data-fr="Journée Entière (Weekend)" data-en="Full Day (Weekend)">Giornata Intera (Festivi)</td>
+          <td>15 €</td>
+          <td>10 €</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="text-align: center; font-size: 13px; margin-top: 12px; font-style: italic; color: #6e2a0f;" data-it="Bambini fino a 4 anni: GRATIS" data-fr="Enfants jusqu'à 4 ans : GRATUIT" data-en="Children under 4 years old: FREE">Bambini fino a 4 anni: GRATIS</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div style="letter-spacing:2px">✦ LAGO BIN - POOL BAR ✦</div>
+  <div class="note" data-it="Senza Glutine disponibile su richiesta" data-fr="Sans Gluten disponible sur demande" data-en="Gluten Free available on request">Senza Glutine disponibile su richiesta</div>
+</div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({ pageLanguage: 'it', autoDisplay: false }, 'google_translate_element');
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script>
+  let currentLang = 'it';
+
+  function setLang(lang, el) {
+    currentLang = lang;
+    resetGoogleTranslate();
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('[data-' + lang + ']').forEach(item => {
+      item.textContent = item.getAttribute('data-' + lang);
+    });
+    document.getElementById('translateBtn').textContent = '🌐 More Languages ▾';
+    closeDropdown();
+  }
+
+  function setTab(tab, el) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector('.tab-btn[onclick*="' + tab + '"]');
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + tab).classList.add('active');
+    window.scrollTo({ top: document.querySelector('.tabs-wrap').offsetTop - 10, behavior: 'smooth' });
+  }
+
+  function toggleDropdown() { document.getElementById('langDropdown').classList.toggle('open'); }
+  function closeDropdown() { document.getElementById('langDropdown').classList.remove('open'); }
+  document.addEventListener('click', function(e) { if (!e.target.closest('.translate-wrap')) closeDropdown(); });
+
+  function googleTranslate(langCode) {
+    closeDropdown();
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('translateBtn').textContent = 'Selected ✓';
+    document.getElementById('translatingBar').classList.add('show');
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+      select.value = langCode;
+      select.dispatchEvent(new Event('change'));
+      setTimeout(() => document.getElementById('translatingBar').classList.remove('show'), 2000);
+    } else {
+      document.cookie = "googtrans=/it/" + langCode + "; path=/";
+      setTimeout(() => { window.location.reload(); }, 500);
+    }
+  }
+
+  function resetGoogleTranslate() {
+    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  }
+</script>
+</body>
+</html>
